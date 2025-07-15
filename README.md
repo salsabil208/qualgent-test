@@ -2,7 +2,7 @@
 
 ## Overview
 
-A modular, scalable test automation system—complete with:
+A modular, scalable test automation system complete with:
 - A Python CLI tool (`qgjob`)
 - A FastAPI backend server
 - Redis-powered job queueing/grouping logic
@@ -12,7 +12,7 @@ A modular, scalable test automation system—complete with:
 
 ## Architecture
 
-![Architecture Diagram](fig.png)
+![Architecture Diagram](https://github.com/salsabil208/qualgent-test/blob/main/fig.png)
 
 **Core Principles:**
 - **Modular**: Clear separation between CLI, backend API, and queue logic
