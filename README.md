@@ -1,53 +1,28 @@
 # QualGent Backend Coding Challenge
 
-## Overview
-
-A modular, scalable test automation system complete with:
-- A Python CLI tool (`qgjob`)
-- A FastAPI backend server
-- Redis-powered job queueing/grouping logic
-- GitHub Actions workflow for CI/CD
-
----
-
-## Architecture
-
-![Architecture Diagram](https://github.com/salsabil208/qualgent-test/blob/main/fig.png)
-
-**Core Principles:**
-- **Modular**: Clear separation between CLI, backend API, and queue logic
-- **Efficient**: Batches jobs by app version for optimal device reuse
-- **Scalable**: Ready for horizontal scaling and multiple agents
-- **Developer Friendly**: Simple CLI UX, clear docs, and CI integration
-
----
-
-## Setup & Running
-
-### Prerequisites
-- Python 3.12+
-- Redis (Docker recommended)
-
-### Clone & Install
-```sh
-git clone <your-repo>
-cd qualgent-challenge
-pip install -r backend/requirements.txt
-pip install -r cli_tool/requirements.txt
-
-
-# QualGent Test Orchestrator
-
 A modular, scalable backend and CLI solution for orchestrating AppWright end-to-end tests across local devices, emulators, and BrowserStack.
 
 ---
 
+## Table of Contents
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Features](#features)
+- [Setup & Installation](#setup--installation)
+- [How It Works](#how-it-works)
+- [Running an End-to-End Test](#running-an-end-to-end-test)
+- [GitHub Actions Integration](#github-actions-integration)
+- [Extensibility & Bonus Features](#extensibility--bonus-features)
+
+---
+
 ## Overview
 
-This project provides:
+This project implements:
 - **A Python CLI tool (`qgjob`)** to submit and track test jobs.
-- **A FastAPI backend** to queue, group, and schedule jobs by app version, with Redis as a fast in-memory queue.
-- **GitHub Actions workflow** for seamless CI integration.
+- **A FastAPI backend** to queue, group, and schedule jobs by `app_version_id`, using Redis as a fast in-memory queue.
+- **A simple worker/agent** that simulates picking up jobs, running tests, and updating their statuses.
+- **A GitHub Actions workflow** for seamless CI integration.
 - **Extensible architecture** ready for scaling, prioritization, and retries.
 
 ---
@@ -56,47 +31,30 @@ This project provides:
 
 ![Architecture Diagram](docs/architecture.png)
 
-- **CLI Tool**: User-facing interface to submit/check test jobs.
-- **Backend (FastAPI)**: Receives jobs, batches/group jobs by `app_version_id`, tracks status.
-- **Redis**: Efficient queue for jobs, supports grouping and batching.
-- **Worker/Agent**: (Simulated) picks up jobs, runs tests, and updates status.
+**Components:**
+- **CLI Tool:** User-facing interface to submit/check test jobs.
+- **Backend (FastAPI):** Receives jobs, groups jobs by `app_version_id`, and tracks job status.
+- **Redis:** Efficient job queue, supports grouping and batching.
+- **Worker/Agent:** (Simulated) picks up jobs, runs tests, and updates status.
 
 ---
 
-## Setup & Running
+## Features
+
+- **Modular:** Clear separation between CLI, backend API, queue logic, and worker.
+- **Efficient:** Batches jobs by app version to optimize device usage.
+- **Scalable:** Easily extended to support multiple agents and horizontal scaling.
+- **Developer-Friendly:** Simple CLI, clear docs, and CI integration.
+
+---
+
+## Setup & Installation
 
 ### Prerequisites
 - Python 3.12+
-- [Redis](https://redis.io/download) (Docker recommended)
+- Redis (locally or via Docker)
 
-### Installation
-
-1. **Clone the repo:**
-    ```sh
-    git clone https://github.com/<your-username>/<repo-name>.git
-    cd <repo-name>
-    ```
-
-2. **Install Python dependencies:**
-    ```sh
-    pip install fastapi uvicorn redis click requests
-    ```
-
-3. **(Optional) Use requirements files:**
-    ```sh
-    pip install -r backend/requirements.txt
-    pip install -r cli_tool/requirements.txt
-    ```
-
-4. **Start Redis (recommended with Docker):**
-    ```sh
-    docker run -p 6379:6379 redis
-    ```
-
----
-
-### Running the Backend
-
+### Clone the Repo
 ```sh
-cd backend
-uvicorn main:app --reload
+git clone https://github.com/<your-username>/<repo-name>.git
+cd <repo-name>
