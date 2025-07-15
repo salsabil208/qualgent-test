@@ -12,7 +12,7 @@ A modular, scalable test automation system—complete with:
 
 ## Architecture
 
-![Architecture Diagram](docs/architecture.png)
+![Architecture Diagram](fig.png)
 
 **Core Principles:**
 - **Modular**: Clear separation between CLI, backend API, and queue logic
