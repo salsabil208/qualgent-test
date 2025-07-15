@@ -6,4 +6,5 @@ class Job(BaseModel):
     app_version_id: str
     test_path: str
     priority: int = 0
-    target: str   # "emulator", "device", "browserstack"
+    target: str  # "emulator", "device", "browserstack"
+    retries: int = 0

@@ -1,0 +1,80 @@
+name: QualGent Backend Coding Challenge CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install backend dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Install CLI dependencies
+        run: pip install -r cli_tool/requirements.txt
+
+      - name: Start FastAPI backend
+        run: |
+          cd backend
+          nohup uvicorn main:app --host 0.0.0.0 --port 8000 --reload &
+          cd ..
+
+      - name: Start worker agent
+        run: nohup python worker.py &
+
+      - name: Wait for API to be ready
+        run: |
+          for i in {1..10}; do
+            if curl -s http://localhost:8000/docs; then
+              echo "API is up!"
+              break
+            else
+              echo "Waiting for API..."
+              sleep 3
+            fi
+          done
+
+      - name: Submit test job via CLI
+        run: |
+          python cli_tool/qgjob.py submit \
+            --org-id=qualgent \
+            --app-version-id=xyz123 \
+            --test=tests/onboarding.spec.js \
+            --target=device
+
+      - name: Poll for job completion
+        run: |
+          job_id=$(python cli_tool/qgjob.py submit \
+            --org-id=qualgent \
+            --app-version-id=xyz123 \
+            --test=tests/onboarding.spec.js \
+            --target=device | grep 'job_id:' | awk '{print $3}')
+          echo "Job ID: $job_id"
+          for i in {1..10}; do
+            status=$(python cli_tool/qgjob.py status --job-id=$job_id | grep "'status': 'done'" || true)
+            if [ ! -z "$status" ]; then
+              echo "Job completed!"
+              exit 0
+            fi
+            echo "Waiting for job to complete..."
+            sleep 5
+          done
+          echo "Job did not finish in time."
+          exit 1
