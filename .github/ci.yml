@@ -1,0 +1,71 @@
+name: AppWright Test Automation
+
+on: [push, pull_request]
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install backend dependencies
+        run: |
+          pip install fastapi uvicorn redis
+
+      - name: Install CLI dependencies
+        run: |
+          pip install click requests
+
+      - name: Start backend (in background)
+        run: |
+          cd backend
+          uvicorn main:app --reload &
+          cd ..
+
+      - name: Wait for backend to be ready
+        run: |
+          for i in {1..10}; do
+            curl -s http://127.0.0.1:8000/docs && exit 0 || sleep 2
+          done
+          exit 1
+
+      - name: Submit a test job via CLI
+        run: |
+          python cli_tool/qgjob.py submit --org-id=qualgent --app-version-id=ci-test-ver --test=tests/onboarding.spec.js --priority=1 --target=emulator > job_id.txt
+
+      - name: Extract job ID
+        run: |
+          job_id=$(grep -o 'job_id: .*' job_id.txt | awk '{print $2}')
+          echo "JOB_ID=$job_id" >> $GITHUB_ENV
+
+      - name: Poll for job status
+        run: |
+          for i in {1..15}; do
+            python cli_tool/qgjob.py status --job-id=${{ env.JOB_ID }} | grep -q 'queued' || break
+            sleep 2
+          done
+          python cli_tool/qgjob.py status --job-id=${{ env.JOB_ID }}
+
+      - name: Fail if test failed
+        run: |
+          status=$(python cli_tool/qgjob.py status --job-id=${{ env.JOB_ID }})
+          if [[ "$status" == *"failed"* ]]; then
+            echo "Job failed!"
+            exit 1
+          fi
