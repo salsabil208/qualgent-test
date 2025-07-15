@@ -65,7 +65,7 @@ jobs:
             --org-id=qualgent \
             --app-version-id=xyz123 \
             --test=tests/onboarding.spec.js \
-            --target=device | grep 'job_id:' | awk '{print $3}')
+            --target=device | awk -F': ' '/job_id:/ {print $2}' | tr -d ' ')
           echo "Job ID: $job_id"
           for i in {1..10}; do
             status=$(python cli_tool/qgjob.py status --job-id=$job_id | grep "'status': 'done'" || true)
