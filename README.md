@@ -29,7 +29,7 @@ This project implements:
 
 ## Architecture
 
-![Architecture Diagram](docs/architecture.png)
+![Architecture Diagram](fig.png)
 
 **Components:**
 - **CLI Tool:** User-facing interface to submit/check test jobs.
