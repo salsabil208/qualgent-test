@@ -12,7 +12,7 @@ A modular, scalable test automation system complete with:
 
 ## Architecture
 
-![Architecture Diagram]([fig.png](https://github.com/salsabil208/qualgent-test/blob/main/fig.png))
+![Architecture Diagram] [https://github.com/salsabil208/qualgent-test/blob/main/fig.png]
 
 **Core Principles:**
 - **Modular**: Clear separation between CLI, backend API, and queue logic
